@@ -7,19 +7,15 @@ h(N, Hvalue, Target) :- goal(N, Target), !, Hvalue is 0;
                         Hvalue is 1 / N.
 
 search([[Node, _, _]|_], _, Target, Node) :- goal(Node, Target).
-search([[Node, ParentCost, _]|FRest], Seed, Target, F) :- setof([X, Cost, H], arc(Node, X, Seed, ParentCost, Cost, Target, H), FNode),
-                                                          addtofrontier(FNode, FRest, FNew),
-                                                          search(FNew, Seed, Target, F).
+search(Nodes, Seed, Target, F) :- min(Nodes, [[Node, ParentCost, _]|FRest]),
+                                  setof([X, Cost, H], arc(Node, X, Seed, ParentCost, Cost, Target, H), FNode),
+                                  append(FNode, FRest, FNew),
+                                  search(FNew, Seed, Target, F).
 
-addtofrontier(FNode, FRest, FNew) :- append(FNode, FRest, Appended),
-                                     insert_sort(Appended, FNew).
-
-insert_sort(List, Sorted) :- i_sort(List, [], Sorted).
-i_sort([], Acc, Acc).
-i_sort([H|T], Acc, Sorted) :- insert(H, Acc, NAcc), i_sort(T, NAcc, Sorted).
-insert(X, [Y|T], [Y|NT]) :- lessthan(Y, X), insert(X, T, NT).
-insert(X, [Y|T], [X, Y|T]) :- lessthan(X, Y).
-insert(X, [], [X]).
+min([H|T], Result) :- hdMin(H, [], T, Result).
+hdMin(H, S, [], [H|S]).
+hdMin(C, S, [H|T], Result) :- lessthan(C, H), !, hdMin(C, [H|S], T, Result);
+                              hdMin(H, [C|S], T, Result).
 
 lessthan([_, Cost1, H1], [_, Cost2, H2]) :- F1 is Cost1 + H1, F2 is Cost2 + H2,
                                             F1 =< F2.
