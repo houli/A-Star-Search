@@ -6,7 +6,7 @@ arc(N, M, Seed, ParentCost, Cost, Target, H) :- M is N * Seed + 1, Cost is 2 + P
 h(N, Hvalue, Target) :- goal(N, Target), !, Hvalue is 0;
                         Hvalue is 1 / N.
 
-search([[Node, _, _]|_], _, Target, Node) :- goal(Node, Target).
+search(Nodes, _, Target, Node) :- min(Nodes, [[Node, _, _]|_]), goal(Node, Target).
 search(Nodes, Seed, Target, F) :- min(Nodes, [[Node, ParentCost, _]|FRest]),
                                   setof([X, Cost, H], arc(Node, X, Seed, ParentCost, Cost, Target, H), FNode),
                                   append(FNode, FRest, FNew),
