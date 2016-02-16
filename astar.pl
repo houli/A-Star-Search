@@ -1,14 +1,14 @@
 goal(N, Target) :- 0 is N mod Target.
 
-arc(N, M, Seed, ParentCost, Cost, Target, H) :- M is N * Seed, Cost is 1 + ParentCost, h(M, H, Target).
-arc(N, M, Seed, ParentCost, Cost, Target, H) :- M is N * Seed + 1, Cost is 2 + ParentCost, h(M, H, Target).
+arc([N, ParentCost, _], Seed, Target, [M, Cost, H]) :- M is N * Seed, Cost is 1 + ParentCost, h(M, H, Target).
+arc([N, ParentCost, _], Seed, Target, [M, Cost, H]) :- M is N * Seed + 1, Cost is 2 + ParentCost, h(M, H, Target).
 
 h(N, Hvalue, Target) :- goal(N, Target), !, Hvalue is 0;
                         Hvalue is 1 / N.
 
-search(Nodes, _, Target, Node) :- min(Nodes, [[Node, _, _]|_]), goal(Node, Target).
-search(Nodes, Seed, Target, F) :- min(Nodes, [[Node, ParentCost, _]|FRest]),
-                                  setof([X, Cost, H], arc(Node, X, Seed, ParentCost, Cost, Target, H), FNode),
+search(Nodes, _, Target, [Node, Cost]) :- min(Nodes, [[Node, Cost, _]|_]), goal(Node, Target).
+search(Nodes, Seed, Target, F) :- min(Nodes, [Node|FRest]),
+                                  setof(NewNode, arc(Node, Seed, Target, NewNode), FNode),
                                   append(FNode, FRest, FNew),
                                   search(FNew, Seed, Target, F).
 
